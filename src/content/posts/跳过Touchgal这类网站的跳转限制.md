@@ -15,7 +15,7 @@ lang: ''
 
 >  我的思路是重写`history.pushState`和`history.replaceState`,触发时，调用自动跳转方法。
   
-代码实现:
+## 代码实现:
 ```javascript
 // ==UserScript==
 // @name         TouchGal 自动跳转
