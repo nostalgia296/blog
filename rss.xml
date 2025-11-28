@@ -5,7 +5,7 @@
 &lt;blockquote&gt;
 &lt;p&gt;我的思路是重写&lt;code&gt;history.pushState&lt;/code&gt;和&lt;code&gt;history.replaceState&lt;/code&gt;,触发时，调用自动跳转方法。&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;代码实现:&lt;/p&gt;
+&lt;h2&gt;代码实现:&lt;/h2&gt;
 &lt;pre&gt;&lt;code&gt;// ==UserScript==
 // @name         TouchGal 自动跳转
 // @namespace    http://tampermonkey.net/
