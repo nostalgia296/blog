@@ -90,7 +90,5 @@ lang: ''
     });
 })();
 ```
-## github
+## github仓库
 ::github{repo="nostalgia296/backup"}
-
-或者[greasyfork](https://greasyfork.org/zh-CN/scripts/532618-touchgal-%E8%87%AA%E5%8A%A8%E8%B7%B3%E8%BD%AC/code)
