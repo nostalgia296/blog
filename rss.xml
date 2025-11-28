@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Lai</title><description>Yu</description><link>https://nostalgia296.github.io/</link><language>zh_CN</language><item><title>在C中使用libcurl进行网络请求</title><link>https://nostalgia296.github.io/blog/posts/first/</link><guid isPermaLink="true">https://nostalgia296.github.io/blog/posts/first/</guid><pubDate>Fri, 28 Nov 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;C语言中使用libcurl进行网络请求&lt;/h1&gt;
+&lt;h2&gt;简介&lt;/h2&gt;
+&lt;p&gt;libcurl是一个功能强大的开源网络传输库，支持多种协议（HTTP、HTTPS、FTP等），是C语言中进行网络编程的首选工具之一。本文将详细介绍如何在C语言项目中使用libcurl进行各种网络请求。&lt;/p&gt;
+&lt;h2&gt;1. 安装libcurl&lt;/h2&gt;
+&lt;h3&gt;Ubuntu/Debian系统&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;sudo apt-get install libcurl4-openssl-dev
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;CentOS/RHEL系统&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;sudo yum install libcurl-devel
+# 或者对于较新版本
+sudo dnf install libcurl-devel
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;macOS系统&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;brew install curl
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;Windows系统&lt;/h3&gt;
+&lt;p&gt;从&lt;a href=&quot;https://curl.se/windows/&quot;&gt;libcurl官网&lt;/a&gt;下载预编译的库文件，或者使用vcpkg：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;vcpkg install curl
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;2. 基本编译&lt;/h2&gt;
+&lt;p&gt;编译时需要链接libcurl库：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;gcc -o program program.c -lcurl
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;3. 简单的HTTP GET请求&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;curl/curl.h&amp;gt;
+
+int main(void) {
+    CURL *curl;
+    CURLcode res;
+    
+    // 初始化libcurl
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
+    
+    if(curl) {
+        // 设置请求URL
+        curl_easy_setopt(curl, CURLOPT_URL, &quot;https://api.github.com/users/torvalds&quot;);
+        
+        // 执行请求
+        res = curl_easy_perform(curl);
+        
+        // 检查错误
+        if(res != CURLE_OK) {
+            fprintf(stderr, &quot;curl_easy_perform() failed: %s\n&quot;, 
+                    curl_easy_strerror(res));
+        }
+        
+        // 清理
+        curl_easy_cleanup(curl);
+    }
+    
+    // 全局清理
+    curl_global_cleanup();
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;4. 处理响应数据&lt;/h2&gt;
+&lt;p&gt;上面的例子只是将响应输出到stdout。要处理响应数据，我们需要使用写回调函数：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;stdlib.h&amp;gt;
+#include &amp;lt;string.h&amp;gt;
+#include &amp;lt;curl/curl.h&amp;gt;
+
+// 结构体用于存储响应数据
+typedef struct {
+    char *data;
+    size_t size;
+} response_data_t;
+
+// 写回调函数
+static size_t write_callback(void *contents, size_t size, size_t nmemb, void *userp) {
+    size_t realsize = size * nmemb;
+    response_data_t *mem = (response_data_t *)userp;
+    
+    // 重新分配内存
+    char *ptr = realloc(mem-&amp;gt;data, mem-&amp;gt;size + realsize + 1);
+    if(ptr == NULL) {
+        printf(&quot;not enough memory (realloc returned NULL)\n&quot;);
+        return 0;
+    }
+    
+    mem-&amp;gt;data = ptr;
+    memcpy(&amp;amp;(mem-&amp;gt;data[mem-&amp;gt;size]), contents, realsize);
+    mem-&amp;gt;size += realsize;
+    mem-&amp;gt;data[mem-&amp;gt;size] = 0;
+    
+    return realsize;
+}
+
+int main(void) {
+    CURL *curl;
+    CURLcode res;
+    response_data_t response = {0};
+    
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
+    
+    if(curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, &quot;https://jsonplaceholder.typicode.com/posts/1&quot;);
+        
+        // 设置写回调函数
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&amp;amp;response);
+        
+        // 执行请求
+        res = curl_easy_perform(curl);
+        
+        if(res == CURLE_OK) {
+            printf(&quot;Response received:\n%s\n&quot;, response.data);
+            printf(&quot;Response size: %zu bytes\n&quot;, response.size);
+        } else {
+            fprintf(stderr, &quot;curl_easy_perform() failed: %s\n&quot;, 
+                    curl_easy_strerror(res));
+        }
+        
+        curl_easy_cleanup(curl);
+    }
+    
+    // 释放响应数据内存
+    if(response.data) {
+        free(response.data);
+    }
+    
+    curl_global_cleanup();
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;5. HTTP POST请求&lt;/h2&gt;
+&lt;h3&gt;5.1 发送表单数据&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;curl/curl.h&amp;gt;
+
+int main(void) {
+    CURL *curl;
+    CURLcode res;
+    
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
+    
+    if(curl) {
+        // 设置POST URL
+        curl_easy_setopt(curl, CURLOPT_URL, &quot;https://httpbin.org/post&quot;);
+        
+        // 设置为POST请求
+        curl_easy_setopt(curl, CURLOPT_POST, 1L);
+        
+        // 设置POST数据
+        const char *post_data = &quot;name=John&amp;amp;age=30&amp;amp;city=NewYork&quot;;
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data);
+        
+        // 执行请求
+        res = curl_easy_perform(curl);
+        
+        if(res != CURLE_OK) {
+            fprintf(stderr, &quot;curl_easy_perform() failed: %s\n&quot;, 
+                    curl_easy_strerror(res));
+        }
+        
+        curl_easy_cleanup(curl);
+    }
+    
+    curl_global_cleanup();
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;5.2 发送JSON数据&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;string.h&amp;gt;
+#include &amp;lt;curl/curl.h&amp;gt;
+
+int main(void) {
+    CURL *curl;
+    CURLcode res;
+    
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
+    
+    if(curl) {
+        // JSON数据
+        const char *json_data = &quot;{\&quot;name\&quot;:\&quot;Alice\&quot;,\&quot;age\&quot;:25,\&quot;email\&quot;:\&quot;alice@example.com\&quot;}&quot;;
+        
+        // 设置URL
+        curl_easy_setopt(curl, CURLOPT_URL, &quot;https://httpbin.org/post&quot;);
+        
+        // 设置为POST请求
+        curl_easy_setopt(curl, CURLOPT_POST, 1L);
+        
+        // 设置POST数据
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_data);
+        
+        // 设置Content-Type头
+        struct curl_slist *headers = NULL;
+        headers = curl_slist_append(headers, &quot;Content-Type: application/json&quot;);
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        
+        // 执行请求
+        res = curl_easy_perform(curl);
+        
+        if(res != CURLE_OK) {
+            fprintf(stderr, &quot;curl_easy_perform() failed: %s\n&quot;, 
+                    curl_easy_strerror(res));
+        }
+        
+        // 清理
+        curl_slist_free_all(headers);
+        curl_easy_cleanup(curl);
+    }
+    
+    curl_global_cleanup();
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;6. 设置请求头&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;curl/curl.h&amp;gt;
+
+int main(void) {
+    CURL *curl;
+    CURLcode res;
+    
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
+    
+    if(curl) {
+        // 设置请求头
+        struct curl_slist *headers = NULL;
+        headers = curl_slist_append(headers, &quot;User-Agent: MyCApp/1.0&quot;);
+        headers = curl_slist_append(headers, &quot;Accept: application/json&quot;);
+        headers = curl_slist_append(headers, &quot;Authorization: Bearer your_token_here&quot;);
+        
+        curl_easy_setopt(curl, CURLOPT_URL, &quot;https://httpbin.org/get&quot;);
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        
+        res = curl_easy_perform(curl);
+        
+        if(res != CURLE_OK) {
+            fprintf(stderr, &quot;curl_easy_perform() failed: %s\n&quot;, 
+                    curl_easy_strerror(res));
+        }
+        
+        curl_slist_free_all(headers);
+        curl_easy_cleanup(curl);
+    }
+    
+    curl_global_cleanup();
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;7. 超时设置&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;curl/curl.h&amp;gt;
+
+int main(void) {
+    CURL *curl;
+    CURLcode res;
+    
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
+    
+    if(curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, &quot;https://httpbin.org/delay/5&quot;);
+        
+        // 设置连接超时（秒）
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
+        
+        // 设置总超时时间（秒）
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 15L);
+        
+        // 设置低速度时间（如果传输速度低于此值超过指定时间，则中止）
+        curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 20L);
+        curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 1L);
+        
+        res = curl_easy_perform(curl);
+        
+        if(res != CURLE_OK) {
+            fprintf(stderr, &quot;curl_easy_perform() failed: %s\n&quot;, 
+                    curl_easy_strerror(res));
+        }
+        
+        curl_easy_cleanup(curl);
+    }
+    
+    curl_global_cleanup();
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;8. HTTPS和SSL验证&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;curl/curl.h&amp;gt;
+
+int main(void) {
+    CURL *curl;
+    CURLcode res;
+    
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
+    
+    if(curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, &quot;https://api.github.com/users/torvalds&quot;);
+        
+        // 禁用SSL证书验证（仅用于测试，生产环境不建议）
+        // curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+        // curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+        
+        // 设置CA证书路径
+        curl_easy_setopt(curl, CURLOPT_CAINFO, &quot;/etc/ssl/certs/ca-certificates.crt&quot;);
+        
+        res = curl_easy_perform(curl);
+        
+        if(res != CURLE_OK) {
+            fprintf(stderr, &quot;curl_easy_perform() failed: %s\n&quot;, 
+                    curl_easy_strerror(res));
+        }
+        
+        curl_easy_cleanup(curl);
+    }
+    
+    curl_global_cleanup();
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;9. 获取响应状态码和头信息&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;curl/curl.h&amp;gt;
+
+int main(void) {
+    CURL *curl;
+    CURLcode res;
+    long response_code;
+    
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
+    
+    if(curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, &quot;https://httpbin.org/status/404&quot;);
+        
+        // 启用头部信息
+        curl_easy_setopt(curl, CURLOPT_HEADER, 1L);
+        
+        res = curl_easy_perform(curl);
+        
+        if(res == CURLE_OK) {
+            // 获取响应状态码
+            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &amp;amp;response_code);
+            printf(&quot;Response code: %ld\n&quot;, response_code);
+            
+            // 获取内容长度
+            double content_length;
+            curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &amp;amp;content_length);
+            printf(&quot;Content length: %.0f bytes\n&quot;, content_length);
+            
+            // 获取总时间
+            double total_time;
+            curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &amp;amp;total_time);
+            printf(&quot;Total time: %.3f seconds\n&quot;, total_time);
+        } else {
+            fprintf(stderr, &quot;curl_easy_perform() failed: %s\n&quot;, 
+                    curl_easy_strerror(res));
+        }
+        
+        curl_easy_cleanup(curl);
+    }
+    
+    curl_global_cleanup();
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;10. 完整的封装示例&lt;/h2&gt;
+&lt;p&gt;下面是一个完整的libcurl封装类，提供了常用的网络请求功能：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;stdlib.h&amp;gt;
+#include &amp;lt;string.h&amp;gt;
+#include &amp;lt;curl/curl.h&amp;gt;
+
+typedef struct {
+    char *data;
+    size_t size;
+} http_response_t;
+
+static size_t write_callback(void *contents, size_t size, size_t nmemb, void *userp) {
+    size_t realsize = size * nmemb;
+    http_response_t *mem = (http_response_t *)userp;
+    
+    char *ptr = realloc(mem-&amp;gt;data, mem-&amp;gt;size + realsize + 1);
+    if(ptr == NULL) {
+        return 0;
+    }
+    
+    mem-&amp;gt;data = ptr;
+    memcpy(&amp;amp;(mem-&amp;gt;data[mem-&amp;gt;size]), contents, realsize);
+    mem-&amp;gt;size += realsize;
+    mem-&amp;gt;data[mem-&amp;gt;size] = 0;
+    
+    return realsize;
+}
+
+// 初始化HTTP客户端
+CURL* http_client_init(void) {
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    return curl_easy_init();
+}
+
+// 清理HTTP客户端
+void http_client_cleanup(CURL *curl) {
+    if(curl) {
+        curl_easy_cleanup(curl);
+    }
+    curl_global_cleanup();
+}
+
+// 设置通用选项
+void http_client_set_common_options(CURL *curl, const char *url, long timeout) {
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+}
+
+// GET请求
+http_response_t* http_get(CURL *curl, const char *url, struct curl_slist *headers) {
+    http_response_t *response = malloc(sizeof(http_response_t));
+    response-&amp;gt;data = malloc(1);
+    response-&amp;gt;size = 0;
+    response-&amp;gt;data[0] = &apos;\0&apos;;
+    
+    http_client_set_common_options(curl, url, 30L);
+    curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
+    if(headers) {
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    }
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)response);
+    
+    CURLcode res = curl_easy_perform(curl);
+    if(res != CURLE_OK) {
+        fprintf(stderr, &quot;GET request failed: %s\n&quot;, curl_easy_strerror(res));
+        free(response-&amp;gt;data);
+        free(response);
+        return NULL;
+    }
+    
+    return response;
+}
+
+// POST请求
+http_response_t* http_post(CURL *curl, const char *url, const char *data, 
+                          struct curl_slist *headers) {
+    http_response_t *response = malloc(sizeof(http_response_t));
+    response-&amp;gt;data = malloc(1);
+    response-&amp;gt;size = 0;
+    response-&amp;gt;data[0] = &apos;\0&apos;;
+    
+    http_client_set_common_options(curl, url, 30L);
+    curl_easy_setopt(curl, CURLOPT_POST, 1L);
+    if(data) {
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
+    }
+    if(headers) {
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    }
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)response);
+    
+    CURLcode res = curl_easy_perform(curl);
+    if(res != CURLE_OK) {
+        fprintf(stderr, &quot;POST request failed: %s\n&quot;, curl_easy_strerror(res));
+        free(response-&amp;gt;data);
+        free(response);
+        return NULL;
+    }
+    
+    return response;
+}
+
+// 释放响应内存
+void http_response_free(http_response_t *response) {
+    if(response) {
+        if(response-&amp;gt;data) {
+            free(response-&amp;gt;data);
+        }
+        free(response);
+    }
+}
+
+int main(void) {
+    CURL *curl = http_client_init();
+    if(!curl) {
+        fprintf(stderr, &quot;Failed to initialize HTTP client\n&quot;);
+        return 1;
+    }
+    
+    // 设置请求头
+    struct curl_slist *headers = NULL;
+    headers = curl_slist_append(headers, &quot;Content-Type: application/json&quot;);
+    headers = curl_slist_append(headers, &quot;User-Agent: CHttpClient/1.0&quot;);
+    
+    // GET请求示例
+    printf(&quot;=== GET Request ===\n&quot;);
+    http_response_t *get_response = http_get(curl, &quot;https://httpbin.org/get&quot;, headers);
+    if(get_response) {
+        printf(&quot;Response:\n%s\n&quot;, get_response-&amp;gt;data);
+        printf(&quot;Size: %zu bytes\n&quot;, get_response-&amp;gt;size);
+        http_response_free(get_response);
+    }
+    
+    // POST请求示例
+    printf(&quot;\n=== POST Request ===\n&quot;);
+    const char *post_data = &quot;{\&quot;name\&quot;:\&quot;John\&quot;,\&quot;age\&quot;:30}&quot;;
+    http_response_t *post_response = http_post(curl, &quot;https://httpbin.org/post&quot;, 
+                                              post_data, headers);
+    if(post_response) {
+        printf(&quot;Response:\n%s\n&quot;, post_response-&amp;gt;data);
+        printf(&quot;Size: %zu bytes\n&quot;, post_response-&amp;gt;size);
+        http_response_free(post_response);
+    }
+    
+    // 清理
+    curl_slist_free_all(headers);
+    http_client_cleanup(curl);
+    
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;11. 常见问题和解决方案&lt;/h2&gt;
+&lt;h3&gt;11.1 内存泄漏&lt;/h3&gt;
+&lt;p&gt;确保每次调用&lt;code&gt;malloc&lt;/code&gt;或&lt;code&gt;realloc&lt;/code&gt;后都有对应的&lt;code&gt;free&lt;/code&gt;调用。&lt;/p&gt;
+&lt;h3&gt;11.2 线程安全&lt;/h3&gt;
+&lt;p&gt;libcurl在多线程环境中使用时需要注意：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;不要在多个线程中共享同一个CURL句柄&lt;/li&gt;
+&lt;li&gt;使用&lt;code&gt;curl_global_init()&lt;/code&gt;和&lt;code&gt;curl_global_cleanup()&lt;/code&gt;时要小心&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;11.3 错误处理&lt;/h3&gt;
+&lt;p&gt;始终检查&lt;code&gt;curl_easy_perform()&lt;/code&gt;的返回值，并使用&lt;code&gt;curl_easy_strerror()&lt;/code&gt;获取错误描述。&lt;/p&gt;
+</content:encoded></item></channel></rss>
