@@ -71,7 +71,7 @@ void main(List&amp;lt;String&amp;gt; args) {
 }
 &lt;/code&gt;&lt;/pre&gt;
 </content:encoded></item><item><title>在C中使用libcurl进行网络请求</title><link>https://nostalgia296.github.io/blog/posts/first/</link><guid isPermaLink="true">https://nostalgia296.github.io/blog/posts/first/</guid><pubDate>Fri, 28 Nov 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;C语言中使用libcurl进行网络请求&lt;/h1&gt;
-&lt;h2&gt;简介&lt;/h2&gt;
+&lt;h2&gt;介绍&lt;/h2&gt;
 &lt;p&gt;libcurl是一个功能强大的开源网络传输库，支持多种协议（HTTP、HTTPS、FTP等），是C语言中进行网络编程的首选工具之一。本文将详细介绍如何在C语言项目中使用libcurl进行各种网络请求。&lt;/p&gt;
 &lt;h2&gt;1. 安装libcurl&lt;/h2&gt;
 &lt;h3&gt;Ubuntu/Debian系统&lt;/h3&gt;
