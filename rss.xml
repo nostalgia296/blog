@@ -79,9 +79,8 @@
     });
 })();
 &lt;/code&gt;&lt;/pre&gt;
-&lt;h2&gt;github&lt;/h2&gt;
+&lt;h2&gt;github仓库&lt;/h2&gt;
 &lt;p&gt;::github{repo=&quot;nostalgia296/backup&quot;}&lt;/p&gt;
-&lt;p&gt;或者&lt;a href=&quot;https://greasyfork.org/zh-CN/scripts/532618-touchgal-%E8%87%AA%E5%8A%A8%E8%B7%B3%E8%BD%AC/code&quot;&gt;greasyfork&lt;/a&gt;&lt;/p&gt;
 </content:encoded></item><item><title>文本加解密</title><link>https://nostalgia296.github.io/blog/posts/%E6%96%87%E6%9C%AC%E5%8A%A0%E8%A7%A3%E5%AF%86/</link><guid isPermaLink="true">https://nostalgia296.github.io/blog/posts/%E6%96%87%E6%9C%AC%E5%8A%A0%E8%A7%A3%E5%AF%86/</guid><pubDate>Fri, 28 Nov 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;msbt.seku.su网站文本加解密的实现原理&lt;/h1&gt;
 &lt;h2&gt;1. 核心思路&lt;/h2&gt;
 &lt;ol&gt;
