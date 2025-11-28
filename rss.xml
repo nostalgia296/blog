@@ -1,4 +1,76 @@
-<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Lai</title><description>Yu</description><link>https://nostalgia296.github.io/</link><language>zh_CN</language><item><title>在C中使用libcurl进行网络请求</title><link>https://nostalgia296.github.io/blog/posts/first/</link><guid isPermaLink="true">https://nostalgia296.github.io/blog/posts/first/</guid><pubDate>Fri, 28 Nov 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;C语言中使用libcurl进行网络请求&lt;/h1&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Lai</title><description>Yu</description><link>https://nostalgia296.github.io/</link><language>zh_CN</language><item><title>文本加解密</title><link>https://nostalgia296.github.io/blog/posts/%E6%96%87%E6%9C%AC%E5%8A%A0%E8%A7%A3%E5%AF%86/</link><guid isPermaLink="true">https://nostalgia296.github.io/blog/posts/%E6%96%87%E6%9C%AC%E5%8A%A0%E8%A7%A3%E5%AF%86/</guid><pubDate>Fri, 28 Nov 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;msbt.seku.su网站文本加解密的实现原理&lt;/h1&gt;
+&lt;h2&gt;1. 核心思路&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;把 UTF-8 字节流拆成 &lt;strong&gt;高 4 位&lt;/strong&gt; 和 &lt;strong&gt;低 4 位&lt;/strong&gt;（每个字节 = 16 进制的高 + 低）。&lt;/li&gt;
+&lt;li&gt;给 0–15 这 16 个数字各分配一个「语气词」：&lt;pre&gt;&lt;code&gt;0 齁  1 哦  2 噢  3 喔  4 咕  5 咿  6 嗯  7 啊
+8 ～  9 哈  10 ！ 11 唔  12 哼  13 ❤  14 呃  15 呼
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/li&gt;
+&lt;li&gt;编码：高 4 位 → 取第 1 个词，低 4 位 → 取第 2 个词，拼起来。&lt;br /&gt;
+解码：逆过程，先查词得数字，再 &lt;code&gt;(high &amp;lt;&amp;lt; 4) | low&lt;/code&gt; 还原字节，最后 &lt;code&gt;utf8.decode&lt;/code&gt;。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr /&gt;
+&lt;h2&gt;2. 完整源码（基于dart）&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;import &apos;dart:convert&apos;;
+import &apos;dart:io&apos;;
+
+const List&amp;lt;String&amp;gt; _codebook = [
+  &quot;齁&quot;, &quot;哦&quot;, &quot;噢&quot;, &quot;喔&quot;, &quot;咕&quot;, &quot;咿&quot;, &quot;嗯&quot;, &quot;啊&quot;,
+  &quot;～&quot;, &quot;哈&quot;, &quot;！&quot;, &quot;唔&quot;, &quot;哼&quot;, &quot;❤&quot;, &quot;呃&quot;, &quot;呼&quot;,
+];
+
+/// 词 → 数字 的反向索引
+late final Map&amp;lt;String, int&amp;gt; _map = Map.fromEntries(
+  _codebook.indexed.map((e) =&amp;gt; MapEntry(e.$2, e.$1)),
+);
+
+/// 编码：任意字符串 → 齁哦噢…
+String encode(String input) {
+  final bytes = utf8.encode(input);
+  final buf = StringBuffer();
+  for (final b in bytes) {
+    buf.write(_codebook[(b &amp;gt;&amp;gt; 4) &amp;amp; 0x0F]);
+    buf.write(_codebook[b &amp;amp; 0x0F]);
+  }
+  return buf.toString();
+}
+
+/// 解码：齁哦噢… → 原字符串
+String decode(String input) {
+  if (input.length.isOdd) throw FormatException(&apos;长度必须为偶数&apos;);
+  final runes = input.runes.toList();
+  final bytes = &amp;lt;int&amp;gt;[];
+  for (int i = 0; i &amp;lt; runes.length; i += 2) {
+    final high = _map[String.fromCharCode(runes[i])];
+    final low  = _map[String.fromCharCode(runes[i + 1])];
+    if (high == null || low == null) {
+      throw FormatException(&apos;包含非法字符&apos;);
+    }
+    bytes.add((high &amp;lt;&amp;lt; 4) | low);
+  }
+  try {
+    return utf8.decode(bytes);
+  } catch (_) {
+    // 如果 UTF-8 非法，退化为 16 进制字符串
+    return bytes.map((b) =&amp;gt; b.toRadixString(16).padLeft(2, &apos;0&apos;)).join();
+  }
+}
+
+void main(List&amp;lt;String&amp;gt; args) {
+  if (args.length != 2) {
+    print(&apos;用法: dart run main.dart &amp;lt;en|de&amp;gt; &quot;文本&quot;&apos;);
+    return;
+  }
+  final mode = args[0];
+  final text = args[1];
+  try {
+    print(mode == &apos;en&apos; ? encode(text) : decode(text));
+  } catch (e) {
+    print(&apos;错误: $e&apos;);
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+</content:encoded></item><item><title>在C中使用libcurl进行网络请求</title><link>https://nostalgia296.github.io/blog/posts/first/</link><guid isPermaLink="true">https://nostalgia296.github.io/blog/posts/first/</guid><pubDate>Fri, 28 Nov 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;C语言中使用libcurl进行网络请求&lt;/h1&gt;
 &lt;h2&gt;简介&lt;/h2&gt;
 &lt;p&gt;libcurl是一个功能强大的开源网络传输库，支持多种协议（HTTP、HTTPS、FTP等），是C语言中进行网络编程的首选工具之一。本文将详细介绍如何在C语言项目中使用libcurl进行各种网络请求。&lt;/p&gt;
 &lt;h2&gt;1. 安装libcurl&lt;/h2&gt;
