@@ -10,7 +10,7 @@ lang: ''
 ---
 # 介绍
 
-因为termux源里有`llvm-mingw`,所以在`CGO`（默认开启)开始的情况下，指定`CC`路径为`llvm-mingw`的特定架构的编译器，就可以交叉编译windows程序了。
+因为termux源里有`llvm-mingw`,所以在`CGO`（默认开启)开启的情况下，指定`CC`路径为`llvm-mingw`的特定架构的编译器，就可以交叉编译windows程序了。
 
 比如说我想要编译x86_64架构的windows程序:
 
