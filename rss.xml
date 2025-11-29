@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Lai</title><description>Yu</description><link>https://nostalgia296.github.io/</link><language>zh_CN</language><item><title>termux交叉编译windows的go程序</title><link>https://nostalgia296.github.io/blog/posts/%E5%9C%A8termux%E4%B8%AD%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91windows%E7%9A%84go%E7%A8%8B%E5%BA%8F/</link><guid isPermaLink="true">https://nostalgia296.github.io/blog/posts/%E5%9C%A8termux%E4%B8%AD%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91windows%E7%9A%84go%E7%A8%8B%E5%BA%8F/</guid><pubDate>Sat, 29 Nov 2025 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;介绍&lt;/h1&gt;
-&lt;p&gt;因为termux源里有&lt;code&gt;llvm-mingw&lt;/code&gt;,所以在&lt;code&gt;CGO&lt;/code&gt;（默认开启)开始的情况下，指定&lt;code&gt;CC&lt;/code&gt;路径为&lt;code&gt;llvm-mingw&lt;/code&gt;的特定架构的编译器，就可以交叉编译windows程序了。&lt;/p&gt;
+&lt;p&gt;因为termux源里有&lt;code&gt;llvm-mingw&lt;/code&gt;,所以在&lt;code&gt;CGO&lt;/code&gt;（默认开启)开启的情况下，指定&lt;code&gt;CC&lt;/code&gt;路径为&lt;code&gt;llvm-mingw&lt;/code&gt;的特定架构的编译器，就可以交叉编译windows程序了。&lt;/p&gt;
 &lt;p&gt;比如说我想要编译x86_64架构的windows程序:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-clang go build xxx.go
 &lt;/code&gt;&lt;/pre&gt;
