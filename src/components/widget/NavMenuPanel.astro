@@ -11,22 +11,43 @@ const links = Astro.props.links;
 ---
 <div id="nav-menu-panel" class:list={["float-panel float-panel-closed absolute transition-all fixed right-4 px-2 py-2"]}>
     {links.map((link) => (
-        <a href={link.external ? link.url : url(link.url)} class="group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-8
-            hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition
+        <a href={link.external ? link.url : url(link.url)} class="nav-menu-link group flex justify-between items-center py-2 pl-3 pr-1 rounded-lg gap-8
+            hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--primary)] transition
         "
            target={link.external ? "_blank" : null}
         >
-            <div class="transition text-black/75 dark:text-white/75 font-bold group-hover:text-[var(--primary)] group-active:text-[var(--primary)]">
+            <div class="transition text-black/75 dark:text-white/75 font-bold group-hover:text-[var(--primary)] group-active:text-white">
                 {link.name}
             </div>
             {!link.external && <Icon name="material-symbols:chevron-right-rounded"
-                  class="transition text-[1.25rem] text-[var(--primary)]"
+                  class="transition text-[1.25rem] text-[var(--primary)] group-active:text-white"
             >
             </Icon>}
             {link.external && <Icon name="fa6-solid:arrow-up-right-from-square"
-                  class="transition text-[0.75rem] text-black/25 dark:text-white/25 -translate-x-1"
+                  class="transition text-[0.75rem] text-black/25 dark:text-white/25 -translate-x-1 group-active:text-white"
             >
             </Icon>}
         </a>
     ))}
 </div>
+
+<script is:inline>
+function setupNavMenuLinks() {
+    const navMenuLinks = document.querySelectorAll('.nav-menu-link');
+    const navMenuPanel = document.getElementById('nav-menu-panel');
+
+    navMenuLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            if (navMenuPanel) {
+                navMenuPanel.classList.add('float-panel-closed');
+            }
+        });
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupNavMenuLinks);
+} else {
+    setupNavMenuLinks();
+}
+</script>
