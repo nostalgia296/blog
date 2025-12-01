@@ -11,7 +11,7 @@
 </script>
 
 {#if enabled && friendLinks.length > 0}
-	<div class="card-base p-4">
+	<div class="card-base p-4 mb-4">
 		<h3 class="text-lg font-bold mb-3 text-neutral-800 dark:text-neutral-200 transition">
 			友链
 		</h3>
@@ -21,7 +21,7 @@
 					href={friend.url}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="flex items-center gap-3 p-2 rounded-lg hover:bg-neutral-200/50 dark:hover:bg-neutral-700/50 transition group active:scale-95"
+					class="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition group active:scale-95"
 				>
 					<img
 						src={friend.avatar}
