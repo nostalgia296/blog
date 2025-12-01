@@ -1,5 +1,6 @@
 import type {
 	ExpressiveCodeConfig,
+	FriendLinkConfig,
 	LicenseConfig,
 	NavBarConfig,
 	ProfileConfig,
@@ -44,6 +45,7 @@ export const navBarConfig: NavBarConfig = {
 		LinkPreset.Home,
 		LinkPreset.Archive,
 		LinkPreset.About,
+		LinkPreset.Links,
 		{
 			name: "GitHub",
 			url: "https://github.com/nostalgia296", // Internal links should not include the base path, as it is automatically added
@@ -87,4 +89,16 @@ export const expressiveCodeConfig: ExpressiveCodeConfig = {
 	// Note: Some styles (such as background color) are being overridden, see the astro.config.mjs file.
 	// Please select a dark theme, as this blog theme currently only supports dark background color
 	theme: "github-dark",
+};
+
+export const friendLinkConfig: FriendLinkConfig = {
+	enable: true,
+	links: [
+		// {
+			// name: "Example",
+			// description: "xxx",
+			// url: "https://example.com",
+			// avatar: "https://xxx",
+		// },
+		]
 };

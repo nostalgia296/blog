@@ -1,0 +1,11 @@
+---
+import FriendLinks from '@components/FriendLinks.svelte'
+import { friendLinkConfig } from '../config'
+import MainGridLayout from "@layouts/MainGridLayout.astro"
+const config = friendLinkConfig
+---
+
+<MainGridLayout title="友链">
+<FriendLinks friendLinks={config.links} enabled={config.enable} />
+</MainGridLayout>
+
