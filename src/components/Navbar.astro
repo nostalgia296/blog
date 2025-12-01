@@ -99,6 +99,19 @@ function loadButtonScript() {
             }
         };
     }
+
+    // 点击任意位置隐藏菜单
+    document.addEventListener('click', function(event) {
+        let menuPanel = document.getElementById("nav-menu-panel");
+        let menuBtn = document.getElementById("nav-menu-switch");
+
+        if (menuPanel && !menuPanel.classList.contains("float-panel-closed")) {
+            // 如果点击的不是菜单面板本身，也不是菜单按钮，则隐藏菜单
+            if (!menuPanel.contains(event.target) && !menuBtn.contains(event.target)) {
+                menuPanel.classList.add("float-panel-closed");
+            }
+        }
+    });
 }
 
 loadButtonScript();
