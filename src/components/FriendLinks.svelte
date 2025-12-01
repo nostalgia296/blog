@@ -26,19 +26,35 @@
 					<img
 						src={friend.avatar}
 						alt={friend.name}
-						class="w-10 h-10 rounded-full object-cover border-2 border-neutral-300/50 dark:border-neutral-600/50 transition group-hover:border-[var(--primary)]"
+						class="w-10 h-10 rounded-full object-cover border-2 border-neutral-300/50
+						dark:border-neutral-600/50 transition group-hover:border-[var(--primary)]"
 					/>
 					<div class="flex-1 min-w-0">
-						<div class="font-semibold text-sm text-neutral-700 dark:text-neutral-300 transition truncate">
+						<div
+							class="font-semibold text-sm text-neutral-700 dark:text-neutral-300 transition truncate"
+						>
 							{friend.name}
 						</div>
 						<div class="text-xs text-neutral-500 dark:text-neutral-400 transition">
 							{friend.description}
 						</div>
 					</div>
-					<div class="opacity-0 group-hover:opacity-100 transition text-[var(--primary)]">
-						<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+					<div
+						class="opacity-0 group-hover:opacity-100 transition text-[var(--primary)]"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="w-4 h-4"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+							/>
 						</svg>
 					</div>
 				</a>
