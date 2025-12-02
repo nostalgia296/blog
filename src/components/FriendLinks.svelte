@@ -6,8 +6,13 @@
 		avatar: string;
 	}
 
-	export let friendLinks: FriendLink[] = [];
-	export let enabled: boolean = true;
+	let {
+		friendLinks = [],
+		enabled = true,
+	}: {
+		friendLinks?: FriendLink[];
+		enabled?: boolean;
+	} = $props();
 </script>
 
 {#if enabled && friendLinks.length > 0}
@@ -16,7 +21,7 @@
 			友链
 		</h3>
 		<div class="space-y-3">
-			{#each friendLinks as friend}
+			{#each friendLinks as friend (friend.url)}
 				<a
 					href={friend.url}
 					target="_blank"
