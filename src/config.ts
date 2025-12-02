@@ -82,17 +82,17 @@ export const expressiveCodeConfig: ExpressiveCodeConfig = {
 export const friendLinkConfig: FriendLinkConfig = {
     enable: true,
     links: [
-    {
-            name: "Clown145",
-            description: "随风潜入夜",
-            url: "https://github.com/clown145",
-            avatar: "https://avatars.githubusercontent.com/u/200821114?v=4",
-        },
-        {
-            name: "Waim908",
-            description: "Empty",
-            url: "https://github.com/Waim908",
-            avatar: "https://avatars.githubusercontent.com/u/160860390?v=4",
-        }
+    // {
+            // name: "Clown145",
+            // description: "随风潜入夜",
+            // url: "https://github.com/clown145",
+            // avatar: "https://avatars.githubusercontent.com/u/200821114?v=4",
+        // },
+        // {
+            // name: "Waim908",
+            // description: "Empty",
+            // url: "https://github.com/Waim908",
+            // avatar: "https://avatars.githubusercontent.com/u/160860390?v=4",
+        // }
     ]
 };
